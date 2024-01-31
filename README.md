@@ -8,4 +8,5 @@ Paraphrases the content from API or website using BeautifulSoup using pegasus.
 - torch
 - requests_html
 
-#Built for Educational Purposes Only!
+## Built for Educational Purposes Only!
+# Coming soon....
