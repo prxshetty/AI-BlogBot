@@ -7,6 +7,7 @@ Paraphrases the content from API or website using BeautifulSoup using pegasus.
 - urllib
 - torch
 - requests_html
+- Pegasus for Paraphrasing Content
 
 ## Built for Educational Purposes Only!
 # Coming soon....
