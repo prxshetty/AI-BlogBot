@@ -1,5 +1,5 @@
 # Blog Bot with AI Paraphraser
-Paraphrases the content from API or website using BeautifulSoup using pegasus.
+Paraphrases the content using pegasus from API or website using BeautifulSoup.
 
 ### Dependencies
 - BeautifulSoup
@@ -9,7 +9,7 @@ Paraphrases the content from API or website using BeautifulSoup using pegasus.
 - requests_html
 - transformer
 - Pegasus
-- Pegasus for Paraphrasing Content
+  
 
 ## Built for Educational Purposes Only!
 # Coming soon....
