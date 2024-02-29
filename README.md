@@ -18,8 +18,8 @@ Fetching Article Content: It allows users to select a headline by its index and 
 
 ### How to Use:
 Install the required libraries using pip:
-- pip install beautifulsoup4 requests requests-html torch transformers
-Run the script. It will display the headlines.
+- pip install beautifulsoup4 requests requests-html torch transformers pegasus
+There might be some additional packages on which pegasus runs on. Install those as well.
 Choose the website which you want and add it to the base_url parameter. then select the category and add it to the relative_url parameter.
 Choose a headline by its index, and the script will fetch and display the article content.
 
