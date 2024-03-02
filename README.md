@@ -25,5 +25,6 @@ Choose a headline by its index, and the script will fetch and display the articl
 
 ## Note
 The paraphrased content might not always be perfect, and manual review might be necessary depending on the element you want to extract data from.
+You need to provide the API for the site in which your blog would be uploaded.
 This script is for educational and demonstration purposes only. Ensure compliance with any website's terms of service when using their content.
 The Pegasus model used for paraphrasing needs to be fine-tuned for better results in production scenarios.In this project i had to split the data into chunks and further divide the data into paragraphs so ensure maximium accuracy so that the AI couldn't hallucinate.
