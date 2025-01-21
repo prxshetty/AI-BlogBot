@@ -1,10 +1,12 @@
-from crawl4ai_quickstart import JsonCssExtractionStrategy, LLMExtractionStrategy
-from crawl4ai import AsyncWebCrawler, CacheMode, CrawlerRunConfig
+from crawl4ai import *
 import asyncio
 import json
 from enum import Enum
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 class TaskStatus(Enum):
     COMPLETED = "completed"
@@ -15,11 +17,11 @@ class TaskStatus(Enum):
 @dataclass
 class Task:
     id: str
+    dependencies : List[str]
+    description: str
     status: TaskStatus = TaskStatus.PENDING
     result: Optional[str] = None
     error: Optional[str] = None
-    dependencies : List[str]
-    description: str
 
 class TaskManager: 
     def __init__(self):
@@ -51,13 +53,27 @@ class WebScrapingTool:
         config = CrawlerRunConfig(
             cache_mode = CacheMode.ENABLED  
         )
-        if extraction_schema:
-            config.extraction_strategy = JsonCssExtractionStrategy(extraction_schema, verbose = True)
-        
+        default_schema = {
+            "name" : "Content Extractor",
+            "baseSelector" : "body",
+            "fields" : [
+                {
+                    "name" : "title",
+                    "selector" : "h1",
+                    "type" : "text"
+                },
+                {
+                    "name" : "main_content",
+                    "selector" : "article",
+                    "type" : "text"
+                }
+            ]
+        }
+        config.extraction_strategy = JsonCssExtractionStrategy(extraction_schema or default_schema, verbose = True)
         result = await self.crawler.arun(url = url, config = config)
         return {
             'content' : result.markdown_v2.raw_markdown,
-            'extracted_data' : json.loads(result.extracted_content),
+            'extracted_data' : json.loads(result.extracted_content) if result.extracted_content else None,
             'links' : result.links,
             'media' : result.media
         }
@@ -102,3 +118,24 @@ class AIAgent:
             await asyncio.gather(
                 *[self.execute_task(task) for task in ready_tasks]
             )
+
+async def main():
+    agent = AIAgent(llm_provider = "openai/gpt-4", api_key = os.getenv("OPENAI_API_KEY"))
+    agent.task_manager.add_task(
+        task_id = "scrape_blog",
+        description = "scrape:https://www.techcrunch.com",
+        dependencies = []
+    )
+    agent.task_manager.add_task(
+        task_id = "generate_blog_post",
+        description= "generate : blog_post",
+        dependencies=["scrape_blog"]
+    )
+    await agent.run()
+
+    for task_id, task in agent.task_manager.tasks.items():
+        print(f"Task {task_id}: {task.status}")
+        if task.result:
+            print(f"Result: {task.result}")
+
+asyncio.run(main())
