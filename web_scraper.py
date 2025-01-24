@@ -14,12 +14,12 @@ class WebScrapingTool:
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.crawler.__aexit__(exc_type, exc_val, exc_tb)
 
-    async def scrape_url(self, url: str, extraction_schema: Optional[dict] = None, user_query: str = "blog content") -> Dict:
-        prune_filter = PruningContentFilter(
-            threshold=0.35,
-            threshold_type="dynamic",
-            min_word_threshold=50
-        )
+    async def scrape_url(self, url: str, extraction_schema: Optional[dict] = None, user_query: str = "artificial intelligence") -> Dict:
+        # prune_filter = PruningContentFilter(
+        #     threshold=0.35,
+        #     threshold_type="dynamic",
+        #     min_word_threshold=50
+        # )
         bm25_filter = BM25ContentFilter(
             user_query=user_query,
             bm25_threshold=1.2,
@@ -27,7 +27,7 @@ class WebScrapingTool:
         )
 
         md_generator = DefaultMarkdownGenerator(
-            content_filter=prune_filter 
+            content_filter=bm25_filter 
         )
 
         config = CrawlerRunConfig(
@@ -51,7 +51,13 @@ class WebScrapingTool:
             ]
         }
         config.extraction_strategy = JsonCssExtractionStrategy(extraction_schema or default_schema, verbose=True)
-        result = await self.crawler.arun(url=url, config=config)
+        result = await self.crawler.arun(url=url, 
+            config=config,
+            word_count_threshold = 10,
+            excluded_tags = ['form'], 
+            exclude_external_links = False,
+            exclude_social_media_links = True,
+            exclude_external_images = True,)
         
         if result.markdown_v2.fit_markdown:
             bm25_filtered_content = bm25_filter.filter_content(result.markdown_v2.fit_markdown)
