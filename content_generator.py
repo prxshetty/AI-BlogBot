@@ -18,7 +18,6 @@ class ContentGenerator:
 
                 Structure and Formatting:
                 - Title: Start with an engaging, thought-provoking headline, often in the form of a question or a call to action. Use a subtitle for clarity or intrigue.
-                - Author: Include your name and a timestamp to personalize the content.
                 - Introduction: Start with a rhetorical or thought-provoking question to immediately engage the reader. Introduce the topic in a way that highlights its importance or relevance.
                 - Subheadings: Use concise, descriptive subheadings to guide the reader through the article.
                 - Lists: Include bulleted or numbered lists where applicable to break down complex ideas or steps.
