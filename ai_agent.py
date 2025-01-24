@@ -20,9 +20,10 @@ class AIAgent:
             elif "generate" in task.description:
                 source_task_id = task.dependencies[0]
                 source_data = self.task_manager.tasks[source_task_id].result
+                
                 task.result = await self.content_generator.generate_content(
                     data=source_data,
-                    template="blog_post"
+                    template="blog_post" # figure out how to use this in the prompt 
                 )
             task.status = TaskStatus.COMPLETED
         except Exception as e:
