@@ -15,14 +15,9 @@ class WebScrapingTool:
         await self.crawler.__aexit__(exc_type, exc_val, exc_tb)
 
     async def scrape_url(self, url: str, extraction_schema: Optional[dict] = None, user_query: str = "artificial intelligence") -> Dict:
-        # prune_filter = PruningContentFilter(
-        #     threshold=0.35,
-        #     threshold_type="dynamic",
-        #     min_word_threshold=50
-        # )
         bm25_filter = BM25ContentFilter(
             user_query=user_query,
-            bm25_threshold=1.2,
+            bm25_threshold=1.0,
             language="english"
         )
 
@@ -55,23 +50,16 @@ class WebScrapingTool:
             config=config,
             word_count_threshold = 10,
             excluded_tags = ['form'], 
-            exclude_external_links = False,
+            exclude_external_links = True,
             exclude_social_media_links = True,
             exclude_external_images = True,)
-        
-        if result.markdown_v2.fit_markdown:
-            bm25_filtered_content = bm25_filter.filter_content(result.markdown_v2.fit_markdown)
-            final_content = "\n---\n".join(bm25_filtered_content) if bm25_filtered_content else result.markdown_v2.fit_markdown
-        else:
-            final_content = result.markdown_v2.fit_markdown
 
         print("Raw Markdown:", len(result.markdown_v2.raw_markdown))
-        print("Pruned Markdown:", len(result.markdown_v2.fit_markdown))
-        print("Final BM25 Filtered Content Length:", len(final_content))
+        print("Filtered Markdown:", len(result.markdown_v2.fit_markdown))
 
         return {
-            'content': final_content,
+            'content': result.markdown_v2.fit_markdown,
             'extracted_data': json.loads(result.extracted_content) if result.extracted_content else None,
-            'links': result.links,
-            'media': result.media
+            # 'links': result.links,
+            # 'media': result.media
         } 

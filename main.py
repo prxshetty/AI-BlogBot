@@ -12,11 +12,11 @@ async def main(url: str):
         description=f"scrape:{url}",
         dependencies=[]
     )
-    # agent.task_manager.add_task(
-    #     task_id="generate_blog_post",
-    #     description="generate:blog_post",
-    #     dependencies=["scrape_blog"]
-    # )
+    agent.task_manager.add_task(
+        task_id="generate_blog_post",
+        description="generate:blog_post",
+        dependencies=["scrape_blog"]
+    )
     await agent.run()
 
     for task_id, task in agent.task_manager.tasks.items():
