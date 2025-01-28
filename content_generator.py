@@ -14,7 +14,7 @@ class ContentGenerator:
             prompt = f"""
                 Based on the following content, create a blog post that mimics the desired style:
 
-                Content: {content[:2000]}  # Limiting content length for API constraints
+                Content: {content[:2000]}  
 
                 Structure and Formatting:
                 - Title: Start with an engaging, thought-provoking headline, often in the form of a question or a call to action. Use a subtitle for clarity or intrigue.

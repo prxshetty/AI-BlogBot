@@ -16,7 +16,15 @@ class AIAgent:
             task.status = TaskStatus.IN_PROGRESS
             if "scrape" in task.description:
                 async with WebScrapingTool() as scraper:
-                    task.result = await scraper.scrape_url(task.description.split("scrape:")[-1].strip())
+                    parts = task.description.split("_", 2) 
+                    if len(parts) != 3:
+                        raise ValueError(f"Invalid task description format: {task.description}")
+                    content_type = parts[1].strip()
+                    url = parts[2].strip()
+                    
+                    print(f"Processing task: content_type={content_type}, url={url}")
+                    task.result = await scraper.scrape_url(content_type, url)
+            
             elif "generate" in task.description:
                 source_task_id = task.dependencies[0]
                 source_data = self.task_manager.tasks[source_task_id].result
@@ -29,6 +37,7 @@ class AIAgent:
         except Exception as e:
             task.status = TaskStatus.FAILED
             task.error = str(e)
+            print(f"Task failed: {str(e)}")
             raise
 
     async def run(self):
