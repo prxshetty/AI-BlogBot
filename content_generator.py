@@ -47,7 +47,6 @@ class ContentGenerator:
                 )
             loop = asyncio.get_event_loop()
             response = await loop.run_in_executor(None, make_openai_call)
-
             return response.choices[0].message.content
         except Exception as e:
             return f"Error generating content: {str(e)}" 

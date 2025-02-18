@@ -5,6 +5,7 @@ from task_manager import TaskManager
 from task_models import Task, TaskStatus
 from content_generator import ContentGenerator
 from web_scraper import WebScrapingTool
+from utils import save_content_to_file
 
 class AIAgent:
     def __init__(self, llm_provider: str = "gpt-4", api_key: Optional[str] = None):
@@ -33,6 +34,12 @@ class AIAgent:
                     data=source_data,
                     template="blog_post" # figure out how to use this in the prompt 
                 )
+                saved_path = save_content_to_file(task.result)
+                if saved_path:
+                    print(f"Generated blog post saved to: {saved_path}")
+                else:
+                    print("Failed to save the generated blog post")
+
             task.status = TaskStatus.COMPLETED
         except Exception as e:
             task.status = TaskStatus.FAILED
@@ -47,4 +54,4 @@ class AIAgent:
                 break
             await asyncio.gather(
                 *[self.execute_task(task) for task in ready_tasks]
-            ) 
+            )
