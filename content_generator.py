@@ -1,16 +1,21 @@
 import asyncio
 from typing import Optional
-from openai import OpenAI
 import logging
+from dotenv import load_dotenv
+import os
+from groq import Groq
 
+load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class ContentGenerator:
     def __init__(self, llm_provider: str, api_key: Optional[str] = None):
-        self.client = OpenAI(api_key=api_key)
+        self.api_key = api_key or os.getenv("GROQ_API_KEY")
+        if not self.api_key:
+            raise ValueError("API key is required for GROQ client")
+        self.client = Groq(api_key=self.api_key)
         self.llm_provider = llm_provider
-        self.api_key = api_key
 
     def _get_prompt_template(self, source_type: str, blog_type: str) -> str:
         """Get the appropriate prompt template based on content source and blog type."""
@@ -161,23 +166,22 @@ class ContentGenerator:
                 
             source_type = data.get('source_type', 'website')
             logger.info(f"🤖 Generating blog post from {source_type} content...")
-            truncated_content = content[:2000] if len(content) > 2000 else content
-            prompt = self._get_prompt_template(source_type, blog_type).format(truncated_content)
+            prompt = self._get_prompt_template(source_type, blog_type).format(content)
             
-            def make_openai_call():
+            def make_groq_call():
                 return self.client.chat.completions.create(
-                    model=self.llm_provider,
                     messages=[
-                        {"role": "system", "content": "You are a professional blog writer"},
+                        {"role": "system", "content": "You are a very popular and professional blog writer."},
                         {"role": "user", "content": prompt}
-                    ]
+                    ],
+                    model=self.llm_provider
                 )
             
             loop = asyncio.get_event_loop()
-            response = await loop.run_in_executor(None, make_openai_call)
+            response = await loop.run_in_executor(None, make_groq_call)
             
-            if not response.choices:
-                raise ValueError("No response generated from AI model")
+            if not response or not response.choices:
+                raise ValueError("No response generated from GROQ API")
                 
             logger.info("✅ Blog post generated successfully!")
             return response.choices[0].message.content

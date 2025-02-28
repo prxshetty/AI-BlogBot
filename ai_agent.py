@@ -8,7 +8,7 @@ from web_scraper import WebScrapingTool
 from utils import save_content_to_file
 
 class AIAgent:
-    def __init__(self, llm_provider: str = "gpt-4", api_key: Optional[str] = None):
+    def __init__(self, llm_provider: str = "llama-3.3-70b-versatile", api_key: Optional[str] = None):
         self.task_manager = TaskManager()
         self.content_generator = ContentGenerator(llm_provider, api_key)
 

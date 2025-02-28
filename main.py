@@ -81,7 +81,7 @@ async def main():
             
             console.print(f"\n🔍 Processing {'YouTube video' if url_type == 'youtube' else 'website'}: {url}", style="bold blue")
             
-            agent = AIAgent(llm_provider="gpt-4", api_key=os.getenv("OPENAI_API_KEY"))
+            agent = AIAgent(llm_provider="llama-3.3-70b-versatile")
 
             if url_type == "youtube":
                 agent.task_manager.add_task(
