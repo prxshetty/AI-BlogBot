@@ -15,7 +15,13 @@ class AIAgent:
     async def execute_task(self, task: Task):
         try:
             task.status = TaskStatus.IN_PROGRESS
-            if "scrape" in task.description:
+            
+            if "youtube_process" in task.description:
+                # YouTube task result is already set in main.py
+                # Just mark it as completed since processing is done
+                task.status = TaskStatus.COMPLETED
+                
+            elif "scrape" in task.description:
                 async with WebScrapingTool() as scraper:
                     parts = task.description.split("_", 2) 
                     if len(parts) != 3:
@@ -30,17 +36,21 @@ class AIAgent:
                 source_task_id = task.dependencies[0]
                 source_data = self.task_manager.tasks[source_task_id].result
                 
+                if not source_data:
+                    raise ValueError("No source content available for generation")                
+                blog_type = task.description.split(":")[1] if ":" in task.description else "standard"
+                
+                # Generate content using the content generator
                 task.result = await self.content_generator.generate_content(
                     data=source_data,
-                    template="blog_post" # figure out how to use this in the prompt 
+                    blog_type=blog_type
                 )
-                saved_path = save_content_to_file(task.result)
-                if saved_path:
-                    print(f"Generated blog post saved to: {saved_path}")
-                else:
-                    print("Failed to save the generated blog post")
+                
+                if not task.result:
+                    raise ValueError("Failed to generate content")
 
             task.status = TaskStatus.COMPLETED
+            
         except Exception as e:
             task.status = TaskStatus.FAILED
             task.error = str(e)
