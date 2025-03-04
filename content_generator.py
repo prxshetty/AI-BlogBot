@@ -4,6 +4,8 @@ import logging
 from dotenv import load_dotenv
 import os
 from groq import Groq
+from openai import OpenAI
+from prompts import BlogPrompts
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
@@ -11,152 +13,45 @@ logger = logging.getLogger(__name__)
 
 class ContentGenerator:
     def __init__(self, llm_provider: str, api_key: Optional[str] = None):
-        self.api_key = api_key or os.getenv("GROQ_API_KEY")
-        if not self.api_key:
-            raise ValueError("API key is required for GROQ client")
-        self.client = Groq(api_key=self.api_key)
         self.llm_provider = llm_provider
+        
+        # Initialize appropriate client based on provider
+        if "openai" in llm_provider or "google" in llm_provider or "anthropic" in llm_provider:
+            self.api_key = api_key or os.getenv("OPENROUTER_API_KEY")
+            if not self.api_key:
+                raise ValueError("API key is required for OpenRouter")
+            self.client = OpenAI(
+                base_url="https://openrouter.ai/api/v1",
+                api_key=self.api_key
+            )
+            self.use_openrouter = True
+        else:
+            self.api_key = api_key or os.getenv("GROQ_API_KEY")
+            if not self.api_key:
+                raise ValueError("API key is required for GROQ")
+            self.client = Groq(api_key=self.api_key)
+            self.use_openrouter = False
+        
+        # Define model info with TPM limits
+        self.model_info = {
+            # Groq Models
+            "llama-3.3-70b-versatile": {"tpm": 6000},
+            "llama-3.1-8b-instant": {"tpm": 6000},
+            "mixtral-8x7b-32768": {"tpm": 5000},
+            "deepseek-r1-distill-llama-70b": {"tpm": 6000},
+            "gemma2-9b-it": {"tpm": 15000},
+            # OpenRouter Models
+            "openai/gpt-4-turbo-preview": {"tpm": 15000},
+            "google/gemini-pro": {"tpm": 30000},
+            "anthropic/claude-3-opus": {"tpm": 200000},
+            "google/gemini-1.5-pro": {"tpm": 100000}
+        }
+        
+        self.model_data = self.model_info.get(self.llm_provider, {"tpm": 6000})
+        logger.info(f"Using model {self.llm_provider} with TPM: {self.model_data['tpm']}")
 
     def _get_prompt_template(self, source_type: str, blog_type: str) -> str:
-        """Get the appropriate prompt template based on content source and blog type."""
-        if source_type == 'youtube':
-            if blog_type == 'opinionated':
-                return """
-                    Create a compelling, opinionated tech-focused blog post in the style of Andrew Zuo's 'AI Is Killing Coding.' The piece should have:
-
-                    Provocative, shareable title
-                    - Use contrarian viewpoints, unexpected comparisons, or bold statements
-                    - Consider formats like "Why [Popular Belief] Is Actually Wrong" or "The Uncomfortable Truth About [Technology]"
-
-                    Hook-driven opening
-                    - Begin with a personal anecdote, surprising statistic, or counterintuitive claim
-                    - Establish your position within the first two sentences
-                    - Create immediate tension between conventional wisdom and your perspective
-
-                    Authentic voice with strategic informality
-                    - Write with personality - use contractions, occasional slang, and varied sentence lengths
-                    - Include pattern interrupts like "Here's the thing:" or "Let me be clear:"
-                    - Incorporate strategic vulnerability ("I used to believe..." or "I was wrong about...")
-
-                    Visual rhythm and information layering
-                    - Vary paragraph length (1-5 sentences) with intentional single-sentence paragraphs for emphasis
-                    - Use formatting strategically: bold for key points, italics for emphasis, and block quotes for external perspectives
-                    - Include 2-3 section headers that promise and deliver specific insights
-
-                    Evidence hierarchy
-                    - Blend personal experience, industry trends, expert opinions, and data
-                    - Present counterarguments fairly before dismantling them
-                    - Use specific examples rather than generalizations ("When I worked at X" instead of "Many developers")
-
-                    Narrative arc with escalating stakes
-                    - Start with micro concerns before expanding to industry/societal implications
-                    - Build tension by addressing potential objections as you go
-                    - End with a synthesis that elevates the discussion beyond the initial premise
-
-                    Resonant conclusion
-                    - Restate your core argument with new depth
-                    - Include a forward-looking statement that connects to broader trends
-                    - End with either a specific call-to-action or a thought-provoking question that creates conversation
-
-                    Authenticity markers
-                    - Include 1-2 references to specific tools, communities, or events familiar to your target audience
-                    - Acknowledge nuance and complexity where appropriate
-                    - Express genuine enthusiasm or concern rather than manufactured outrage
-
-                    Aim for 800-1200 words with a reading time of 4-6 minutes. The final piece should feel like a thoughtful perspective from an industry insider rather than generic content marketing.
-
-                    Transcript: {0}
-                """
-            else:
-                return """
-                    Based on this YouTube video transcript, create an engaging blog post that captures 
-                    the key insights and maintains the speaker's voice:
-
-                    Transcript: {0}
-
-                    Structure and Formatting:
-                    - Title: Create an attention-grabbing title that reflects the video's main topic
-                    - Introduction: Start with a hook that draws readers in, mentioning it's based on a video
-                    - Key Points: Break down the main points discussed in the video
-                    - Quotes: Include notable quotes from the speaker when relevant
-                    - Timestamps: Reference key moments from the video when appropriate
-                    - Conclusion: Summarize the main takeaways and include a call-to-action
-
-                    Tone and Style:
-                    - Maintain the speaker's personality and speaking style
-                    - Convert spoken language into readable text while keeping authenticity
-                    - Add context where needed for clarity
-                    - Use a conversational yet professional tone
-                    - Include relevant examples mentioned in the video
-                """
-        else:
-            if blog_type == 'opinionated':
-                return """
-                    Create a compelling, opinionated tech-focused blog post in the style of Andrew Zuo's 'AI Is Killing Coding.' The piece should have:
-
-                    Provocative, shareable title
-                    - Use contrarian viewpoints, unexpected comparisons, or bold statements
-                    - Consider formats like "Why [Popular Belief] Is Actually Wrong" or "The Uncomfortable Truth About [Technology]"
-
-                    Hook-driven opening
-                    - Begin with a personal anecdote, surprising statistic, or counterintuitive claim
-                    - Establish your position within the first two sentences
-                    - Create immediate tension between conventional wisdom and your perspective
-
-                    Authentic voice with strategic informality
-                    - Write with personality - use contractions, occasional slang, and varied sentence lengths
-                    - Include pattern interrupts like "Here's the thing:" or "Let me be clear:"
-                    - Incorporate strategic vulnerability ("I used to believe..." or "I was wrong about...")
-
-                    Visual rhythm and information layering
-                    - Vary paragraph length (1-5 sentences) with intentional single-sentence paragraphs for emphasis
-                    - Use formatting strategically: bold for key points, italics for emphasis, and block quotes for external perspectives
-                    - Include 2-3 section headers that promise and deliver specific insights
-
-                    Evidence hierarchy
-                    - Blend personal experience, industry trends, expert opinions, and data
-                    - Present counterarguments fairly before dismantling them
-                    - Use specific examples rather than generalizations ("When I worked at X" instead of "Many developers")
-
-                    Narrative arc with escalating stakes
-                    - Start with micro concerns before expanding to industry/societal implications
-                    - Build tension by addressing potential objections as you go
-                    - End with a synthesis that elevates the discussion beyond the initial premise
-
-                    Resonant conclusion
-                    - Restate your core argument with new depth
-                    - Include a forward-looking statement that connects to broader trends
-                    - End with either a specific call-to-action or a thought-provoking question that creates conversation
-
-                    Authenticity markers
-                    - Include 1-2 references to specific tools, communities, or events familiar to your target audience
-                    - Acknowledge nuance and complexity where appropriate
-                    - Express genuine enthusiasm or concern rather than manufactured outrage
-
-                    Aim for 800-1200 words with a reading time of 4-6 minutes. The final piece should feel like a thoughtful perspective from an industry insider rather than generic content marketing.
-
-                    Content: {0}
-                """
-            else:
-                return """
-                    Based on the following content, create a blog post that mimics the desired style:
-
-                    Content: {0}
-
-                    Structure and Formatting:
-                    - Title: Start with an engaging, thought-provoking headline
-                    - Introduction: Begin with a hook that immediately engages the reader
-                    - Subheadings: Use descriptive subheadings to organize content
-                    - Lists: Include bulleted or numbered lists where applicable
-                    - Examples: Use concrete examples to support key points
-                    - Conclusion: End with actionable takeaways
-
-                    Tone and Style:
-                    - Conversational but authoritative
-                    - Clear and concise paragraphs
-                    - Engaging and relatable examples
-                    - Professional yet accessible language
-                """
+        return BlogPrompts.BLOG_TEMPLATES[source_type][blog_type]
 
     async def generate_content(self, data: dict, blog_type: str) -> str:
         try:
@@ -166,22 +61,55 @@ class ContentGenerator:
                 
             source_type = data.get('source_type', 'website')
             logger.info(f"🤖 Generating blog post from {source_type} content...")
+            
+            # Estimate token count
+            estimated_tokens = len(content) // 4
+            logger.info(f"Estimated content tokens: {estimated_tokens}")
+            
+            # If content is too large, take a portion that fits within TPM limit
+            if estimated_tokens > self.model_data['tpm']:
+                content_portion = int(self.model_data['tpm'] * 0.7 * 4)  # 70% of TPM limit in chars
+                content = content[:content_portion]
+                logger.info(f"Content truncated to fit within TPM limit: {self.model_data['tpm']}")
+            
             prompt = self._get_prompt_template(source_type, blog_type).format(content)
             
-            def make_groq_call():
-                return self.client.chat.completions.create(
-                    messages=[
-                        {"role": "system", "content": "You are a very popular and professional blog writer."},
-                        {"role": "user", "content": prompt}
-                    ],
-                    model=self.llm_provider
-                )
+            def make_api_call():
+                try:
+                    if self.use_openrouter:
+                        return self.client.chat.completions.create(
+                            extra_headers={
+                                "HTTP-Referer": "https://github.com/yourusername/Blog-Bot",  # Update with your repo URL
+                                "X-Title": "Blog-Bot"
+                            },
+                            model=self.llm_provider,
+                            messages=[
+                                {"role": "system", "content": BlogPrompts.SYSTEM_PROMPTS[blog_type]},
+                                {"role": "user", "content": prompt}
+                            ],
+                            temperature=0.7,
+                            max_tokens=2000
+                        )
+                    else:
+                        return self.client.chat.completions.create(
+                            messages=[
+                                {"role": "system", "content": BlogPrompts.SYSTEM_PROMPTS[blog_type]},
+                                {"role": "user", "content": prompt}
+                            ],
+                            model=self.llm_provider,
+                            temperature=0.7,
+                            max_tokens=2000
+                        )
+                except Exception as e:
+                    if "413" in str(e) or "too large" in str(e).lower():
+                        raise ValueError(f"Content too large for model {self.llm_provider}. Try using a model with larger context window.")
+                    raise
             
             loop = asyncio.get_event_loop()
-            response = await loop.run_in_executor(None, make_groq_call)
+            response = await loop.run_in_executor(None, make_api_call)
             
             if not response or not response.choices:
-                raise ValueError("No response generated from GROQ API")
+                raise ValueError("No response generated from API")
                 
             logger.info("✅ Blog post generated successfully!")
             return response.choices[0].message.content

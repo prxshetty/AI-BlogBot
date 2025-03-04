@@ -60,15 +60,59 @@ def get_user_input():
                 print("\n📝 Select blog type:")
                 console.print("[1] Standard Blog Post")
                 console.print("[2] Opinionated Tech Blog Post")
-                blog_choice = input("\n👉 Enter your choice (1-2): ").strip()
+                console.print("[3] SEO-Optimized Blog Post")
+                blog_choice = input("\n👉 Enter your choice (1-3): ").strip()
                 
-                if blog_choice in ["1", "2"]:
-                    blog_type = "standard" if blog_choice == "1" else "opinionated"
+                if blog_choice in ["1", "2", "3"]:
+                    blog_type = "standard" if blog_choice == "1" else "opinionated" if blog_choice == "2" else "seo"
                     break
                 else:
-                    console.print("❌ Invalid choice. Please enter 1 or 2.", style="bold red")
+                    console.print("❌ Invalid choice. Please enter 1, 2, or 3.", style="bold red")
             
-            return content_type, url, url_type, identifier, blog_type
+            while True:
+                print("\n🤖 Select AI model:")
+                console.print("[1] Llama 3.3 70B (Versatile, 6K TPM)")
+                console.print("[2] Llama 3.1 8B (Faster, 6K TPM)")
+                console.print("[3] Mixtral 8x7B (32K context, 5K TPM)")
+                console.print("[4] DeepSeek R1 (Technical, 6K TPM)")
+                console.print("[5] Gemma2 9B (15K TPM)")
+                console.print("[6] GPT-4 Turbo (via OpenRouter)")
+                console.print("[7] Google Gemini Pro (via OpenRouter)")
+                console.print("[8] Claude 3 Opus (via OpenRouter)")
+                console.print("[9] Gemini 1.5 Pro (via OpenRouter)")
+                model_choice = input("\n👉 Enter your choice (1-9): ").strip()
+                
+                if model_choice == "1":
+                    model = "llama-3.3-70b-versatile"
+                    break
+                elif model_choice == "2":
+                    model = "llama-3.1-8b-instant"
+                    break
+                elif model_choice == "3":
+                    model = "mixtral-8x7b-32768"
+                    break
+                elif model_choice == "4":
+                    model = "deepseek-r1-distill-llama-70b"
+                    break
+                elif model_choice == "5":
+                    model = "gemma2-9b-it"
+                    break
+                elif model_choice == "6":
+                    model = "openai/gpt-4-turbo-preview"
+                    break
+                elif model_choice == "7":
+                    model = "google/gemini-pro"
+                    break
+                elif model_choice == "8":
+                    model = "anthropic/claude-3-opus"
+                    break
+                elif model_choice == "9":
+                    model = "google/gemini-1.5-pro"
+                    break
+                else:
+                    console.print("❌ Invalid choice. Please enter 1-9.", style="bold red")
+            
+            return content_type, url, url_type, identifier, blog_type, model
         else:
             console.print("❌ Invalid URL. Please enter a valid URL or 'exit' to quit.", style="bold red")
 
@@ -77,11 +121,12 @@ async def main():
     
     while True:
         try:
-            content_type, url, url_type, identifier, blog_type = get_user_input()
+            content_type, url, url_type, identifier, blog_type, model = get_user_input()
             
             console.print(f"\n🔍 Processing {'YouTube video' if url_type == 'youtube' else 'website'}: {url}", style="bold blue")
+            console.print(f"Using model: {model}", style="bold blue")
             
-            agent = AIAgent(llm_provider="llama-3.3-70b-versatile")
+            agent = AIAgent(llm_provider=model)
 
             if url_type == "youtube":
                 agent.task_manager.add_task(
