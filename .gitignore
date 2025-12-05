@@ -1,5 +1,6 @@
-venv
+env
 .env
 output/*
 __pycache__
 captions
+.DS_Store

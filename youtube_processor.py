@@ -25,7 +25,7 @@ class YouTubeProcessor:
                 return None
 
             # Convert transcript to plain text
-            content = "\n".join([item['text'] for item in transcript])
+            content = "\n".join([item.text for item in transcript])
             
             # Save captions to file
             output_file = os.path.join(self.output_dir, f"{video_id}.txt")
@@ -48,7 +48,8 @@ class YouTubeProcessor:
     def _fetch_transcript(self, video_id: str):
         """Fetch transcript for a video, trying both manual and auto-generated captions."""
         try:
-            transcript_list = YouTubeTranscriptApi.list(video_id)
+            api = YouTubeTranscriptApi()
+            transcript_list = api.list(video_id)
             
             try:
                 logger.info("🔍 Searching for manual captions...")
