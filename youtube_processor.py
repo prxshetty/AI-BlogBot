@@ -19,7 +19,7 @@ class YouTubeProcessor:
         """
         try:
             logger.info(f"🎥 Processing YouTube video: {video_id}")
-            transcript = await self._fetch_transcript(video_id)
+            transcript = self._fetch_transcript(video_id)
             
             if not transcript:
                 return None
@@ -45,10 +45,10 @@ class YouTubeProcessor:
             logger.error(f"❌ Error processing video {video_id}: {str(e)}")
             return None
 
-    async def _fetch_transcript(self, video_id: str):
+    def _fetch_transcript(self, video_id: str):
         """Fetch transcript for a video, trying both manual and auto-generated captions."""
         try:
-            transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+            transcript_list = YouTubeTranscriptApi.list(video_id)
             
             try:
                 logger.info("🔍 Searching for manual captions...")
