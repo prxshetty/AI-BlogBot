@@ -72,7 +72,7 @@ class ContentGenerator:
                 content = content[:content_portion]
                 logger.info(f"Content truncated to fit within TPM limit: {self.model_data['tpm']}")
             
-            prompt = self._get_prompt_template(source_type, blog_type).format(content)
+            prompt = self._get_prompt_template(source_type, blog_type).format(content=content)
             
             def make_api_call():
                 try:
