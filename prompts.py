@@ -9,13 +9,111 @@ class BlogPrompts:
 
     BLOG_TEMPLATES = {
         "youtube": {
-            "standard": "Create a well-structured blog post based on this YouTube video content:\n\n{content}\n\nWrite an engaging article that captures the key insights and presents them in a clear, readable format with proper introduction, body, and conclusion.",
-            "opinionated": "Create a bold, opinionated tech blog post based on this YouTube video content:\n\n{content}\n\nWrite a thought-provoking article that takes a strong stance on the topic, challenges conventional thinking, and provides unique technical insights backed by the video content.",
-            "seo": "Create an SEO-optimized blog post based on this YouTube video content:\n\n{content}\n\nWrite a search-engine friendly article with:\n- A compelling title with target keywords\n- Clear H2 and H3 headings\n- Natural keyword integration\n- Meta description\n- Proper structure for featured snippets\n- Internal linking suggestions",
+            "standard": """Create a well-structured blog post in MARKDOWN format based on this YouTube video content:
+
+{content}
+
+Write an engaging article that captures the key insights and presents them in a clear, readable format.
+
+FORMAT YOUR RESPONSE IN PROPER MARKDOWN:
+- Use ## for main section headings (H2)
+- Use ### for subsections (H3)
+- Use **bold** for emphasis and key terms
+- Use *italics* for subtle emphasis
+- Use bullet points (-) or numbered lists (1.) where appropriate
+- Use > for blockquotes when citing key points
+- Use `code` for technical terms or code snippets
+- Use ```language for code blocks if needed
+- Include a compelling title as the first line (## Title)
+- Structure: Introduction, main body sections, and conclusion""",
+            "opinionated": """Create a bold, opinionated tech blog post in MARKDOWN format based on this YouTube video content:
+
+{content}
+
+Write a thought-provoking article that takes a strong stance on the topic, challenges conventional thinking, and provides unique technical insights backed by the video content.
+
+FORMAT YOUR RESPONSE IN PROPER MARKDOWN:
+- Use ## for main section headings (H2)
+- Use ### for subsections (H3)
+- Use **bold** for strong opinions and key arguments
+- Use *italics* for subtle emphasis
+- Use bullet points (-) or numbered lists (1.) for arguments
+- Use > for blockquotes when making powerful statements
+- Use `code` for technical terms or code snippets
+- Use ```language for code blocks if needed
+- Include a compelling, opinionated title as the first line (## Title)
+- Structure: Hook introduction, main arguments, counterarguments, conclusion""",
+            "seo": """Create an SEO-optimized blog post in MARKDOWN format based on this YouTube video content:
+
+{content}
+
+Write a search-engine friendly article with proper markdown structure.
+
+FORMAT YOUR RESPONSE IN PROPER MARKDOWN:
+- Start with a compelling ## Title with target keywords
+- Include a meta description as a blockquote at the top
+- Use ## for main section headings (H2) with keywords
+- Use ### for subsections (H3)
+- Use **bold** for important keywords and phrases
+- Use bullet points (-) or numbered lists (1.) for easy scanning
+- Use > for key takeaways or important quotes
+- Use `code` for technical terms
+- Use ```language for code blocks if needed
+- Structure for featured snippets (how-to steps, definitions, lists)
+- Include internal linking suggestions in [brackets]""",
         },
         "webpage": {
-            "standard": "Create a well-structured blog post based on this webpage content:\n\n{content}\n\nWrite an engaging article that captures the key insights and presents them in a clear, readable format with proper introduction, body, and conclusion.",
-            "opinionated": "Create a bold, opinionated tech blog post based on this webpage content:\n\n{content}\n\nWrite a thought-provoking article that takes a strong stance on the topic, challenges conventional thinking, and provides unique technical insights backed by the webpage content.",
-            "seo": "Create an SEO-optimized blog post based on this webpage content:\n\n{content}\n\nWrite a search-engine friendly article with:\n- A compelling title with target keywords\n- Clear H2 and H3 headings\n- Natural keyword integration\n- Meta description\n- Proper structure for featured snippets\n- Internal linking suggestions",
+            "standard": """Create a well-structured blog post in MARKDOWN format based on this webpage content:
+
+{content}
+
+Write an engaging article that captures the key insights and presents them in a clear, readable format.
+
+FORMAT YOUR RESPONSE IN PROPER MARKDOWN:
+- Use ## for main section headings (H2)
+- Use ### for subsections (H3)
+- Use **bold** for emphasis and key terms
+- Use *italics* for subtle emphasis
+- Use bullet points (-) or numbered lists (1.) where appropriate
+- Use > for blockquotes when citing key points
+- Use `code` for technical terms or code snippets
+- Use ```language for code blocks if needed
+- Include a compelling title as the first line (## Title)
+- Structure: Introduction, main body sections, and conclusion""",
+            "opinionated": """Create a bold, opinionated tech blog post in MARKDOWN format based on this webpage content:
+
+{content}
+
+Write a thought-provoking article that takes a strong stance on the topic, challenges conventional thinking, and provides unique technical insights backed by the webpage content.
+
+FORMAT YOUR RESPONSE IN PROPER MARKDOWN:
+- Use ## for main section headings (H2)
+- Use ### for subsections (H3)
+- Use **bold** for strong opinions and key arguments
+- Use *italics* for subtle emphasis
+- Use bullet points (-) or numbered lists (1.) for arguments
+- Use > for blockquotes when making powerful statements
+- Use `code` for technical terms or code snippets
+- Use ```language for code blocks if needed
+- Include a compelling, opinionated title as the first line (## Title)
+- Structure: Hook introduction, main arguments, counterarguments, conclusion""",
+            "seo": """Create an SEO-optimized blog post in MARKDOWN format based on this webpage content:
+
+{content}
+
+Write a search-engine friendly article with proper markdown structure.
+
+FORMAT YOUR RESPONSE IN PROPER MARKDOWN:
+- Start with a compelling ## Title with target keywords
+- Include a meta description as a blockquote at the top
+- Use ## for main section headings (H2) with keywords
+- Use ### for subsections (H3)
+- Use **bold** for important keywords and phrases
+- Use bullet points (-) or numbered lists (1.) for easy scanning
+- Use > for key takeaways or important quotes
+- Use `code` for technical terms
+- Use ```language for code blocks if needed
+- Structure for featured snippets (how-to steps, definitions, lists)
+- Include internal linking suggestions in [brackets]""",
         },      
     }

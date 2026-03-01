@@ -9,6 +9,7 @@ from rich.console import Console
 from rich.panel import Panel
 from utils import save_content_to_file
 from task_manager import TaskStatus
+from md_to_html import convert_md_to_html
 
 console = Console()
 logging.basicConfig(level=logging.INFO)
@@ -172,8 +173,23 @@ async def main():
             if not blog_content or not isinstance(blog_content, str):
                 raise ValueError("Generated content is empty or invalid")          
             file_prefix = f"youtube_{identifier}" if url_type == "youtube" else "blog"
-            save_content_to_file(blog_content, file_prefix)
+            md_filepath = save_content_to_file(blog_content, file_prefix)
             console.print(f"\n📝 Blog post saved successfully.", style="bold green")
+            
+            # Ask if user wants to generate HTML version
+            while True:
+                html_choice = input("\n🌐 Would you like to generate an HTML version? (y/n): ").strip().lower()
+                if html_choice in ['y', 'yes']:
+                    try:
+                        html_path = convert_md_to_html(md_filepath)
+                        console.print(f"\n✅ HTML file created and opened in browser: {html_path}", style="bold green")
+                    except Exception as e:
+                        console.print(f"\n❌ Error generating HTML: {str(e)}", style="bold red")
+                    break
+                elif html_choice in ['n', 'no']:
+                    break
+                else:
+                    console.print("\nPlease enter 'y' or 'n'", style="bold red")
             
             while True:
                 choice = input("\nWould you like to process another URL? (y/n): ").strip().lower()
