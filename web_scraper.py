@@ -73,10 +73,10 @@ class WebScrapingTool:
             if not result or not result.success:
                 raise ValueError(f"Failed to crawl URL: {actual_url}")
 
-            print("Raw Markdown:", len(result.markdown_v2.raw_markdown))
-            print("Filtered Markdown:", len(result.markdown_v2.fit_markdown))
+            print("Raw Markdown:", len(result.markdown.raw_markdown))
+            print("Filtered Markdown:", len(result.markdown.fit_markdown))
 
-            content = result.markdown_v2.raw_markdown if content_type == "raw" else result.markdown_v2.fit_markdown
+            content = result.markdown.raw_markdown if content_type == "raw" else result.markdown.fit_markdown
             return {
                 'content': content,
                 'extracted_data': json.loads(result.extracted_content) if result.extracted_content else None
