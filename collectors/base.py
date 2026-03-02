@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List
-from data_models import SourceContent
+from core.models import SourceContent
 
 class BaseCollector(ABC):
     @abstractmethod

@@ -1,8 +1,8 @@
 import httpx
 from typing import List
 from .base import BaseCollector
-from data_models import SourceContent
-from web_scraper import WebScrapingTool
+from core.models import SourceContent
+from utils.web_scraper import WebScrapingTool
 
 class SerperCollector(BaseCollector):
     def __init__(self, api_key: str):
