@@ -10,7 +10,7 @@ class SerperCollector(BaseCollector):
         self.url = "https://google.serper.dev/search"
 
     async def search(self, query: str, num: int = 5) -> List[dict]:
-        headeres = {
+        headers = {
             'X-API-KEY': self.api_key,
             'Content-Type' : 'application/json'
         }

@@ -39,7 +39,7 @@ class YoutubeMonitor:
         
             request = self.youtube.search().list(
                 part="snippet",
-                channel_id=channel_id,
+                channelId=channel_id,
                 order="date",
                 type="video",
                 publishedAfter=self._get_time_str(hours_ago),
@@ -52,12 +52,12 @@ class YoutubeMonitor:
                 new_videos.append({
                     'title': item['snippet']['title'],
                     'channel': handle, 
-                    'videod_id': item['id']['videoId'],
+                    'video_id': item['id'].get('videoId', ''),
                     'published_at': item['snippet']['publishedAt']
                 })
         return new_videos
     
     def _get_time_str(self, hours_ago: int) -> str:
         from datetime import timedelta
-        dt =datetime.now(timezone.utc) - timedelta(hours=hours_ago)
+        dt = datetime.now(timezone('UTC')) - timedelta(hours=hours_ago)
         return dt.strftime('%Y-%m-%dT%H:%M:%SZ')
